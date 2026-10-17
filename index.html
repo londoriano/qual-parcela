@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12263F">
+<title>Qual Parcela?</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#12263F; --sea:#1F7A8C; --mist:#E9F0F5; --ink:#1B2733; --amber:#F0A83A;
+    --bs-body-font-family:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  body{background:var(--mist);color:var(--ink);padding-bottom:env(safe-area-inset-bottom,0)}
+  :root{--w:480px}
+  header.top{background:var(--navy);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 1.1rem) max(1.25rem,calc((100% - var(--w))/2 + 1.25rem)) 3.2rem}
+  header.top h1{font-size:1.5rem;font-weight:800;margin:0}
+  header.top p{margin:.15rem 0 0;opacity:.75;font-size:.9rem}
+  main{max-width:var(--w);margin:-2.2rem auto 0;padding:0 .9rem 2rem}
+  .panel{background:#fff;border-radius:1rem;padding:1.1rem;box-shadow:0 6px 24px rgba(18,38,63,.12)}
+  .nav-pills .nav-link{color:var(--navy);font-weight:600;border-radius:.7rem}
+  .nav-pills .nav-link.active{background:var(--navy)}
+  .lbl{font-size:.85rem;font-weight:600;color:#5b6b7a;margin-bottom:.35rem}
+  .big{font-size:2.1rem;font-weight:800;color:var(--navy);line-height:1.1}
+  .step-btn{width:3rem;height:3rem;border-radius:50%;font-size:1.5rem;font-weight:700;line-height:1;
+    background:var(--navy);color:#fff;border:0;flex:none}
+  .step-btn:active{background:var(--sea)}
+  input[type=range]{width:100%;accent-color:var(--sea);height:2rem}
+  .pct .btn{font-weight:700;border-color:var(--navy);color:var(--navy);padding:.6rem 0}
+  .btn-check:checked+.btn{background:var(--navy);border-color:var(--navy);color:#fff}
+  .result{background:var(--navy);color:#fff;border-radius:.9rem;padding:1.1rem;margin-top:1.1rem}
+  .result .val{font-size:2.3rem;font-weight:800;color:var(--amber);line-height:1.1}
+  .result small{opacity:.75}
+  .row-line{display:flex;justify-content:space-between;gap:.5rem;padding:.4rem 0;border-bottom:1px solid #e3eaf0;font-size:.92rem}
+  .row-line:last-child{border:0}
+  .row-line.on{font-weight:800;color:var(--sea)}
+  .form-control-lg{font-weight:800;color:var(--navy)}
+  .note{font-size:.78rem;color:#6c7b89;margin-top:.9rem}
+    .lance{background:#FFF8EA;border-left:4px solid var(--amber);border-radius:.7rem;padding:.8rem .9rem;margin-top:.9rem}
+  .lance h3{font-size:.95rem;font-weight:800;color:var(--navy);margin:0 0 .3rem}
+  .carta-in{width:100%;min-width:0;border:0;border-bottom:2px dashed #b7c4d0;background:transparent;text-align:center;
+    font-family:inherit;font-weight:800;font-size:1.55rem;line-height:1.2;color:var(--navy);padding:0;border-radius:0}
+  .carta-in:focus{outline:0;border-bottom-color:var(--sea)}
+  #res2{display:grid;gap:1rem;margin-top:1rem}
+  #res2>*{margin-top:0!important}
+  @media (min-width:768px){:root{--w:720px}.carta-in{font-size:2.1rem}}
+  @media (min-width:992px){
+    :root{--w:1040px}
+    header.top h1{font-size:2rem}
+    .panel{padding:1.75rem}
+    .pane-grid{display:grid;grid-template-columns:380px 1fr;gap:2.25rem;align-items:start}
+    .col-out .result{margin-top:0}
+    #res2{grid-template-columns:1fr 1fr;margin-top:0}
+  }
+  @media (prefers-reduced-motion:no-preference){.val{transition:opacity .15s}}
+  .nav-pills .nav-link{padding:.5rem .25rem;font-size:.82rem;line-height:1.15}
+  .fc{perspective:1000px}
+  .fc-in{display:grid;min-height:16rem;transition:transform .45s;transform-style:preserve-3d;cursor:pointer}
+  .fc.flip .fc-in{transform:rotateY(180deg)}
+  .fc-face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:.9rem;padding:1rem;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+  .fc-face small{opacity:.75}
+  .fc-face .row-line{width:100%}
+  .fc-front{background:var(--navy);color:#fff}
+  .fc-front .val{font-size:2.1rem;font-weight:800;color:var(--amber);line-height:1.15}
+  .fc-back{background:#fff;border:2px solid var(--sea);color:var(--navy);transform:rotateY(180deg)}
+  .fc-back .val{font-size:1.8rem;font-weight:800;line-height:1.15}
+  @media (prefers-reduced-motion:reduce){.fc-in{transition:none}}
+  .quiz{max-width:560px;margin:0 auto}
+  .q-head{display:flex;justify-content:space-between;font-size:.85rem;font-weight:600;color:#5b6b7a}
+  .q-bar{height:.4rem;background:#e3eaf0;border-radius:1rem;overflow:hidden;margin:.4rem 0 1rem}
+  .q-bar>i{display:block;height:100%;background:var(--sea)}
+  .q-box{background:var(--navy);color:#fff;border-radius:.9rem;padding:1.1rem;text-align:center}
+  .q-box small{opacity:.75}
+  .q-box .val{font-size:2.1rem;font-weight:800;color:var(--amber);line-height:1.15}
+  .opt{display:block;width:100%;text-align:center;font-family:inherit;font-weight:800;font-size:1.15rem;padding:.85rem;
+    border:2px solid #cfd9e2;background:#fff;color:var(--navy);border-radius:.8rem;margin-top:.6rem}
+  .opt:not(:disabled):active{border-color:var(--sea)}
+  .opt:disabled{opacity:1;cursor:default}
+  .opt.ok{background:#E4F5EA;border-color:#2E9E5B;color:#17683A}
+  .opt.no{background:#FDEAEA;border-color:#D64545;color:#912A2A}
+  .lance.fb-ok{background:#E9F7EE;border-left-color:#2E9E5B}
+  .lance.fb-no{background:#FDEEEE;border-left-color:#D64545}
+  .modo{display:block;width:100%;text-align:left;font-family:inherit;border:2px solid #cfd9e2;background:#fff;color:var(--navy);
+    border-radius:.8rem;padding:.7rem .9rem;margin-top:.6rem}
+  .modo b{display:block;font-size:1.05rem;font-weight:800}
+  .modo span{font-size:.82rem;color:#5b6b7a}
+  .modo:active{border-color:var(--sea)}
+  .modo.shark{border-color:var(--amber);background:#FFF8EA}
+  /* ---- Responsivo ---- */
+  html{-webkit-text-size-adjust:100%}
+  button{touch-action:manipulation}
+  main{padding-left:max(.9rem,env(safe-area-inset-left,0px));padding-right:max(.9rem,env(safe-area-inset-right,0px))}
+  .row-line span:last-child{white-space:nowrap;text-align:right}
+  .big{font-size:clamp(1.6rem,7.5vw,2.1rem)}
+  .result .val{font-size:clamp(1.8rem,8vw,2.3rem)}
+  .q-box .val,.fc-front .val{font-size:clamp(1.6rem,7.5vw,2.1rem)}
+  .fc-back .val{font-size:clamp(1.3rem,6.5vw,1.8rem)}
+  .opt{font-size:clamp(1rem,4.6vw,1.15rem)}
+  @media (max-width:575px){
+    ul.nav-pills{display:grid;grid-template-columns:1fr 1fr;gap:.35rem}
+    .nav-pills .nav-link{width:100%;font-size:.9rem;padding:.55rem .4rem}
+  }
+  @media (max-width:380px){
+    header.top h1{font-size:1.3rem}
+    .panel{padding:.85rem}
+    .carta-in{font-size:1.35rem}
+    .step-btn{width:2.6rem;height:2.6rem;font-size:1.3rem}
+    .fc-in{min-height:15rem}
+    .pct .btn{font-size:.9rem}
+    .lance,.result{padding:.85rem}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1>Qual Parcela?</h1>
+    <p>Simulador de consórcio</p>
+  </header>
+
+  <main>
+    <div class="panel">
+      <ul class="nav nav-pills nav-fill mb-3" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tabCarta" type="button">Escolher a carta</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabParcela" type="button">Tenho a parcela</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabTreino" type="button">Treino</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabFlash" type="button">Flashcards</button></li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- CARTA -> PARCELA -->
+        <div class="tab-pane fade show active" id="tabCarta">
+         <div class="pane-grid"><div class="col-in">
+          <div class="lbl">Valor da carta</div>
+          <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
+            <button class="step-btn" id="menos" aria-label="Diminuir R$ 20 mil">−</button>
+            <div class="flex-grow-1 text-center" style="min-width:0">
+              <input type="text" inputmode="numeric" id="cartaIn" class="carta-in" value="R$ 80.000" autocomplete="off" aria-label="Valor da carta (toque para digitar)">
+              <div class="small text-secondary mt-1" id="cartaHint"></div>
+            </div>
+            <button class="step-btn" id="mais" aria-label="Aumentar R$ 20 mil">+</button>
+          </div>
+          <input type="range" id="slider" min="80000" max="1000000" step="20000" value="80000" aria-label="Valor da carta">
+          <div class="d-flex justify-content-between small text-secondary mb-3"><span>R$ 80 mil</span><span>R$ 1 milhão</span></div>
+
+          <div class="lbl">Percentual da parcela</div>
+          <div class="btn-group pct w-100 pctGroup" role="group"></div>
+
+          </div><div class="col-out">
+          <div class="result">
+            <small>Parcela mensal</small>
+            <div class="val" id="parcelaTxt">—</div>
+            <small id="parcelaSub"></small>
+          </div>
+
+          <div class="mt-3" id="detalhe"></div>
+          <div id="lance1"></div>
+
+          <div class="lbl mt-3">Comparativo para esta carta</div>
+          <div id="comparativo"></div>
+        </div></div></div>
+
+        <!-- TREINO -->
+        <div class="tab-pane fade" id="tabTreino"><div id="quiz"></div></div>
+        <div class="tab-pane fade" id="tabFlash"><div id="flash"></div></div>
+
+        <!-- PARCELA -> CARTA -->
+        <div class="tab-pane fade" id="tabParcela">
+         <div class="pane-grid"><div class="col-in">
+          <label class="lbl" for="parcelaIn">Parcela que cabe no bolso</label>
+          <div class="input-group input-group-lg mb-3">
+            <span class="input-group-text">R$</span>
+            <input type="text" inputmode="numeric" class="form-control form-control-lg" id="parcelaIn" value="1.000" autocomplete="off">
+          </div>
+
+          <div class="lbl">Percentual da parcela</div>
+          <div class="btn-group pct w-100 pctGroup" role="group"></div>
+
+          </div><div class="col-out"><div id="res2"></div></div></div>
+        </div>
+      </div>
+
+      <p class="note text-center">Elite da Alavancagem 2026 - Ademicon Tubarão SC
+  </main>
+</div>
+
+<div class="modal fade" id="aviso" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="avisoTit" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0"><h2 class="modal-title fs-5 fw-bold" id="avisoTit">Aviso ao consultor</h2></div>
+      <div class="modal-body">Consultor Ademicon, verifique seu Simulador Oficial antes de repassar informações ao lead. Dados meramente para auxílio.</div>
+      <div class="modal-footer border-0 pt-0"><button type="button" class="btn w-100 text-white fw-bold" style="background:var(--navy)" data-bs-dismiss="modal">Entendi</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const MIN=80000, MAX=1000000, STEP=20000, TAXA=0.2419, TAXA2=0.24206, LANCE=0.25, VENDA=0.30, PRAZO=220;
+const PCTS=[100,85,70,50];
+const DICA='Toque no valor para digitar';
+let carta=MIN, pct=100;
+
+const brl=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const brl0=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+const fm=(v,p)=>p===100?brl(v):'≈ '+brl0(v);
+const taxaDe=p=>p===100?TAXA:TAXA2;
+const fmtTaxa=p=>(taxaDe(p)*100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:3})+'%';
+const parcela=(c,p)=>Math.round(c*(p/100+taxaDe(p))/PRAZO*100)/100;
+const $=id=>document.getElementById(id);
+const linha=(a,b,on)=>`<div class="row-line${on?' on':''}"><span>${a}</span><span>${b}</span></div>`;
+
+// Botões de percentual (um grupo por aba, sincronizados)
+document.querySelectorAll('.pctGroup').forEach((g,i)=>{
+  PCTS.forEach(p=>{
+    g.insertAdjacentHTML('beforeend',
+      `<input type="radio" class="btn-check" name="pct${i}" id="pct${i}_${p}" value="${p}" ${p===pct?'checked':''}>
+       <label class="btn" for="pct${i}_${p}">${p}%</label>`);
+  });
+  g.addEventListener('change',e=>{pct=+e.target.value;syncPct();render();});
+});
+function syncPct(){
+  document.querySelectorAll('.pctGroup input').forEach(r=>r.checked=(+r.value===pct));
+}
+
+function cardLance(c){
+  const lance=c*LANCE, cred=c-lance, v1=c*VENDA, v2=cred*VENDA;
+  return `<div class="lance"><h3>Lance embutido e venda da carta</h3>`+
+    linha('Lance embutido (25%)',brl(lance))+
+    linha('Crédito liberado',brl(cred))+
+    linha('Venda sem lance (30% da carta)',brl(v1))+
+    linha('Venda com lance embutido (30% do crédito liberado)',brl(v2))+`</div>`;
+}
+function bloco(titulo,c,alvo){
+  const pc=parcela(c,pct), dif=pc-alvo;
+  return `<div class="mt-3"><div class="result" style="margin-top:0"><small>${titulo}</small><div class="val">${brl0(c)}</div>
+    <small>Parcela de ${fm(pc,pct)} em ${PRAZO} meses (${pct}%)</small></div>
+    <div class="mt-2">${linha('Parcela informada',brl(alvo))}${linha('Parcela da carta',fm(pc,pct))}${linha(dif>0?'Excede em':'Sobra',fm(Math.abs(dif),pct))}</div>
+    ${cardLance(c)}
+    <button class="btn btn-outline-dark w-100 mt-3" onclick="usar(${c})">Ver no simulador</button></div>`;
+}
+function usar(c){carta=c;render();bootstrap.Tab.getOrCreateInstance(document.querySelector('[data-bs-target="#tabCarta"]')).show();}
+
+function render(){
+  // Aba 1
+  $('slider').value=carta;
+  if(document.activeElement!==$('cartaIn')){$('cartaIn').value=brl0(carta);$('cartaHint').textContent=DICA;}
+  const par=parcela(carta,pct), taxa=carta*taxaDe(pct), base=carta*pct/100;
+  $('parcelaTxt').textContent=fm(par,pct);
+  $('parcelaSub').textContent=`${PRAZO} meses · parcela de ${pct}%`;
+  $('detalhe').innerHTML=
+    linha('Carta contratada',brl0(carta))+
+    linha(`Fundo comum (${pct}%)`,fm(base,pct))+
+    linha(`Taxa de adm. (${fmtTaxa(pct)})`,fm(taxa,pct))+
+    linha('Total das parcelas',fm(par*PRAZO,pct));
+  $('lance1').innerHTML=cardLance(carta);
+  $('comparativo').innerHTML=PCTS.map(p=>linha(`Parcela ${p}%`,fm(parcela(carta,p),p),p===pct)).join('');
+
+  // Aba 2
+  const alvo=parseInt($('parcelaIn').value.replace(/\D/g,''),10)||0;
+  const res=$('res2');
+  if(!alvo){res.innerHTML='<p class="text-secondary mt-3">Informe o valor da parcela.</p>';return;}
+  const exata=alvo*PRAZO/(pct/100+taxaDe(pct));
+  let c=MIN+Math.floor((exata-MIN)/STEP+1e-9)*STEP;
+  if(c>MAX)c=MAX;
+  while(c>=MIN && parcela(c,pct)>alvo+0.005) c-=STEP;
+  const out=[];
+  if(c>=MIN) out.push(bloco('Carta que cabe no bolso',c,alvo));
+  else out.push(`<div class="alert alert-warning mt-3 mb-0">A parcela informada é menor que a da menor carta (${brl0(MIN)}: ${fm(parcela(MIN,pct),pct)} com ${pct}%).</div>`);
+  const sup=c<MIN?MIN:c+STEP;
+  if(sup<=MAX) out.push(bloco('Carta logo acima',sup,alvo));
+  res.innerHTML=out.join('');
+}
+
+// Controles da carta
+$('slider').addEventListener('input',e=>{carta=+e.target.value;render();});
+$('menos').onclick=()=>{carta=Math.max(MIN,(Math.ceil(carta/STEP)-1)*STEP);render();};
+$('mais').onclick=()=>{carta=Math.min(MAX,(Math.floor(carta/STEP)+1)*STEP);render();};
+
+// Valor da carta digitado (qualquer valor entre o mínimo e o máximo)
+const cIn=$('cartaIn');
+cIn.addEventListener('focus',e=>e.target.select());
+cIn.addEventListener('input',e=>{
+  const n=parseInt(e.target.value.replace(/\D/g,''),10);
+  e.target.value=isNaN(n)?'':'R$ '+n.toLocaleString('pt-BR');
+  if(!isNaN(n)&&n>=MIN&&n<=MAX){carta=n;$('cartaHint').textContent=DICA;render();}
+  else $('cartaHint').textContent=`Informe um valor entre ${brl0(MIN)} e ${brl0(MAX)}`;
+});
+cIn.addEventListener('blur',()=>{
+  const n=parseInt(cIn.value.replace(/\D/g,''),10);
+  if(!isNaN(n)) carta=Math.min(MAX,Math.max(MIN,n));
+  render();
+});
+cIn.addEventListener('keydown',e=>{if(e.key==='Enter')cIn.blur();});
+
+// Máscara da parcela ideal
+$('parcelaIn').addEventListener('input',e=>{
+  const n=parseInt(e.target.value.replace(/\D/g,''),10);
+  e.target.value=isNaN(n)?'':n.toLocaleString('pt-BR');
+  render();
+});
+$('parcelaIn').addEventListener('focus',e=>e.target.select());
+
+render();
+
+// ===== Treino e Flashcards por modo de dificuldade =====
+const MODOS={
+  facil:{nome:'Fácil',n:10,max:400000,pcts:[100,50],desc:'10 cartas · até R$ 400 mil · planos de 100% e 50%'},
+  medio:{nome:'Médio',n:15,max:600000,pcts:[100,50],desc:'15 cartas · até R$ 600 mil · planos de 100% e 50%'},
+  dificil:{nome:'Difícil',n:20,max:1000000,pcts:[100,50],desc:'20 cartas · até R$ 1 milhão · planos de 100% e 50%'},
+  shark:{nome:'Shark',n:35,max:1000000,pcts:[100,85,70,50],desc:'35 cartas · até R$ 1 milhão · inclui 85% e 70%'}
+};
+const CARTAS=[80000,100000,200000,300000,400000,500000,600000,700000,800000,900000,1000000];
+const rnd=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+function novaQuestao(tipo,usados,m){
+  const pool=CARTAS.filter(c=>c<=m.max), pcts=m.pcts;
+  let c,p;
+  do{c=pool[rnd(pool.length)];p=pcts[rnd(pcts.length)];}while(usados.has(c+'-'+p));
+  usados.add(c+'-'+p);
+  const par=parcela(c,p), ix=pool.indexOf(c);
+  // Erradas plausíveis (só cartas e % do modo): outro %, cartas vizinhas, ou os dois
+  const cand=[];
+  pcts.forEach(q=>{if(q!==p)cand.push([c,q]);});
+  [-2,-1,1,2].forEach(d=>{const x=pool[ix+d];if(x)cand.push([x,p]);});
+  [-1,1].forEach(d=>{const x=pool[ix+d];if(x)pcts.forEach(q=>{if(q!==p)cand.push([x,q]);});});
+  shuffle(cand);
+  const vistos=[par], ops=[];
+  // errada precisa diferir em pelo menos R$ 1 da correta e das demais (valores aparecem arredondados)
+  const add=(x,q)=>{const v=parcela(x,q);if(ops.length<3&&vistos.every(w=>Math.abs(w-v)>=1)){vistos.push(v);ops.push({c:x,p:q,par:v,ok:false});}};
+  cand.forEach(([x,q])=>add(x,q));
+  for(let t=0;t<500&&ops.length<3;t++)add(pool[rnd(pool.length)],pcts[rnd(pcts.length)]);
+  ops.push({c,p,par,ok:true});
+  return {tipo,c,p,par,ops:shuffle(ops)};
+}
+// metade A (carta e % → parcela), metade B (parcela → carta e %); sem repetir combinação dentro de cada tipo
+function sorteio(m){
+  const metade=Math.ceil(m.n/2), ua=new Set(), ub=new Set(), l=[];
+  for(let i=0;i<m.n;i++)l.push(novaQuestao(i<metade?'A':'B',i<metade?ua:ub,m));
+  return {l,metade};
+}
+// --- UI ---
+let Q=null, F=null;
+const BTN='class="btn w-100 text-white fw-bold py-3" style="background:var(--navy)"';
+const modoBtns=fn=>Object.entries(MODOS).map(([k,m])=>`<button class="modo${k==='shark'?' shark':''}" onclick="${fn}('${k}')"><b>${m.nome}</b><span>${m.desc}</span></button>`).join('');
+const NOTA='Selecione uma dificuldade:';
+
+// ----- Treino -----
+function quizHome(){
+  $('quiz').innerHTML=`<div class="quiz py-3">
+    <div class="big mb-2 text-center">Treino de parcelas</div>
+    <p class="text-secondary small text-center mb-2">${NOTA}</p>
+    ${modoBtns('quizStart')}</div>`;
+}
+function quizStart(k){
+  const m=MODOS[k], s=sorteio(m);
+  Q={k,m,qs:s.l,metade:s.metade,i:0,ac:0,acA:0,acB:0,done:false};
+  quizShow();
+}
+function quizShow(){
+  const N=Q.qs.length, q=Q.qs[Q.i], A=q.tipo==='A';
+  const box=A
+    ?`<small>Qual a parcela mensal da carta de</small><div class="val">${brl0(q.c)}</div><small>com parcela de ${q.p}%?</small>`
+    :`<small>Qual carta e percentual geram a parcela de</small><div class="val">${fm(q.par,q.p)}</div><small>em ${PRAZO} meses?</small>`;
+  const ops=q.ops.map((o,j)=>`<button class="opt" onclick="quizResp(${j})">${A?fm(o.par,q.p):brl0(o.c)+' · '+o.p+'%'}</button>`).join('');
+  $('quiz').innerHTML=`<div class="quiz">
+    <div class="q-head"><span>${Q.m.nome} · Questão ${Q.i+1}/${N}</span><span>Acertos: ${Q.ac}</span></div>
+    <div class="q-bar"><i style="width:${Q.i/N*100}%"></i></div>
+    <div class="q-box">${box}</div>
+    <div id="opts">${ops}</div>
+    <div id="fb"></div>
+  </div>`;
+}
+function quizResp(j){
+  if(Q.done)return; Q.done=true;
+  const q=Q.qs[Q.i], ok=q.ops[j].ok;
+  if(ok){Q.ac++;Q.i<Q.metade?Q.acA++:Q.acB++;}
+  document.querySelectorAll('#opts .opt').forEach((b,k)=>{
+    b.disabled=true;
+    if(q.ops[k].ok)b.classList.add('ok'); else if(k===j)b.classList.add('no');
+  });
+  $('fb').innerHTML=`<div class="lance ${ok?'fb-ok':'fb-no'}"><h3>${ok?'Correto!':'Não foi dessa vez'}</h3>`+
+    linha('Carta e percentual',`${brl0(q.c)} · ${q.p}%`)+
+    linha(`Fundo comum (${q.p}%)`,fm(q.c*q.p/100,q.p))+
+    linha(`Taxa de adm. (${fmtTaxa(q.p)})`,fm(q.c*taxaDe(q.p),q.p))+
+    linha(`Parcela (÷ ${PRAZO})`,fm(q.par,q.p),true)+`</div>
+    <button class="btn w-100 text-white fw-bold py-2 mt-3" style="background:var(--navy)" onclick="quizNext()">${Q.i===Q.qs.length-1?'Ver resultado':'Próxima'}</button>`;
+  $('fb').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function quizNext(){Q.i++;Q.done=false;Q.i>=Q.qs.length?quizEnd():quizShow();}
+function quizEnd(){
+  const N=Q.qs.length, r=Q.ac/N;
+  const m=r>=.9?'Excelente!':r>=.7?'Muito bom!':r>=.5?'Bom caminho, continue treinando.':'Vale repetir o treino.';
+  $('quiz').innerHTML=`<div class="quiz text-center py-3">
+    <div class="lbl">Modo ${Q.m.nome}</div>
+    <div class="big mb-1">${Q.ac} de ${N}</div>
+    <p class="text-secondary">${m}</p>
+    <div class="text-start mb-3">${linha('Carta e % → parcela',`${Q.acA}/${Q.metade}`)}${linha('Parcela → carta e %',`${Q.acB}/${N-Q.metade}`)}</div>
+    <button ${BTN} onclick="quizStart('${Q.k}')">Treinar de novo</button>
+    <button class="btn btn-outline-dark w-100 mt-2" onclick="quizHome()">Trocar de modo</button>
+  </div>`;
+}
+quizHome();
+
+// ----- Flashcards (os errados voltam ao fim do baralho até todos serem acertados) -----
+function flashHome(){
+  $('flash').innerHTML=`<div class="quiz py-3">
+    <div class="big mb-2 text-center">Flashcards</div>
+    <p class="text-secondary text-center mb-1">Cartões errados voltam ao fim do baralho: só termina quando todos forem acertados.</p>
+    <p class="text-secondary small text-center mb-2">${NOTA}</p>
+    ${modoBtns('flashStart')}</div>`;
+}
+function flashStart(k){
+  const m=MODOS[k], s=sorteio(m);
+  F={k,m,fila:s.l.slice(),total:s.l.length,metade:s.metade,ok:0,primA:0,primB:0,erros:0,rev:false};
+  flashShow();
+}
+function flashShow(){
+  const q=F.fila[0], A=q.tipo==='A';
+  F.rev=false;
+  const rep=q.errou?'<span class="badge text-bg-warning mb-2">Repetição</span>':'';
+  const frente=A
+    ?`<small>Carta de</small><div class="val">${brl0(q.c)}</div><small>com parcela de ${q.p}%</small>`
+    :`<small>Parcela de</small><div class="val">${fm(q.par,q.p)}</div><small>em ${PRAZO} meses</small>`;
+  const resp=A
+    ?`<small>Parcela mensal</small><div class="val">${fm(q.par,q.p)}</div>`
+    :`<small>Carta e percentual</small><div class="val">${brl0(q.c)} · ${q.p}%</div>`;
+  const det=linha(`Fundo comum (${q.p}%)`,fm(q.c*q.p/100,q.p))+linha(`Taxa de adm. (${fmtTaxa(q.p)})`,fm(q.c*taxaDe(q.p),q.p))+linha(`Parcela (÷ ${PRAZO})`,fm(q.par,q.p),true);
+  $('flash').innerHTML=`<div class="quiz">
+    <div class="q-head"><span>${F.m.nome} · Restam ${F.fila.length}</span><span>Acertados: ${F.ok}/${F.total}</span></div>
+    <div class="q-bar"><i style="width:${F.ok/F.total*100}%"></i></div>
+    <div class="fc" id="fc"><div class="fc-in" role="button" tabindex="0" aria-label="Virar cartão" onclick="flashFlip()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flashFlip()}">
+      <div class="fc-face fc-front">${rep}${frente}<small class="mt-3">Toque para virar</small></div>
+      <div class="fc-face fc-back">${resp}<div class="mt-2">${det}</div></div>
+    </div></div>
+    <div id="fcb" class="mt-3"><p class="text-center text-secondary small mb-0">Pense na resposta e vire o cartão para conferir.</p></div>
+  </div>`;
+}
+function flashFlip(){
+  $('fc').classList.toggle('flip');
+  if(F.rev)return; F.rev=true;
+  $('fcb').innerHTML=`<div class="d-flex gap-2">
+    <button class="btn btn-outline-danger flex-fill fw-bold py-2" onclick="flashNext(false)">Errei</button>
+    <button class="btn btn-success flex-fill fw-bold py-2" onclick="flashNext(true)">Acertei</button></div>
+    <p class="text-center text-secondary small mt-2 mb-0">Errou? O cartão volta para o fim do baralho.</p>`;
+}
+function flashNext(ok){
+  const q=F.fila.shift();
+  if(ok){F.ok++;if(!q.errou){q.tipo==='A'?F.primA++:F.primB++;}}
+  else{q.errou=true;F.erros++;F.fila.push(q);}
+  F.fila.length?flashShow():flashEnd();
+}
+function flashEnd(){
+  const N=F.total, de1=F.primA+F.primB;
+  const info=F.erros?`${F.erros} ${F.erros===1?'erro':'erros'} no caminho`:'sem nenhum erro!';
+  $('flash').innerHTML=`<div class="quiz text-center py-3">
+    <div class="lbl">Modo ${F.m.nome}</div>
+    <div class="big mb-1">Baralho concluído!</div>
+    <p class="text-secondary">De primeira: ${de1} de ${N} · ${info}</p>
+    <div class="text-start mb-3">${linha('Carta e % → parcela (de primeira)',`${F.primA}/${F.metade}`)}${linha('Parcela → carta e % (de primeira)',`${F.primB}/${N-F.metade}`)}</div>
+    <button ${BTN} onclick="flashStart('${F.k}')">Novo baralho</button>
+    <button class="btn btn-outline-dark w-100 mt-2" onclick="flashHome()">Trocar de modo</button>
+  </div>`;
+}
+flashHome();
+
+// Aviso exibido toda vez que o app é aberto
+new bootstrap.Modal($('aviso')).show();
+</script>
+</body>
+</html>
